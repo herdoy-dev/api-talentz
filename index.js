@@ -1,7 +1,9 @@
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import auth from "./routes/auth.js";
 import contacts from "./routes/contacts.js";
+import users from "./routes/users.js";
 import startServer from "./startup/start-server.js";
 
 const app = express();
@@ -14,6 +16,8 @@ app.use(express.json());
 
 // Routes
 app.use("/api/contacts", contacts);
+app.use("/api/users", users);
+app.use("/api/auth", auth);
 
 // Start server
 startServer(app);
