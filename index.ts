@@ -1,10 +1,11 @@
 import cors from "cors";
 import express from "express";
+import "express-async-errors";
 import helmet from "helmet";
-import auth from "./routes/auth.js";
-import contacts from "./routes/contacts.js";
-import users from "./routes/users.js";
-import startServer from "./startup/start-server.js";
+import auth from "./routes/auth";
+import contacts from "./routes/contacts";
+import users from "./routes/users";
+import startServer from "./startup/start-server";
 
 const app = express();
 
