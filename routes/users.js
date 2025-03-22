@@ -1,37 +1,39 @@
 import express from "express";
-import { User, validateUser } from "../models/user";
+import { User, validateUser } from "../models/user.js";
+import auth from "../middlewares/auth.js";
+import admin from "../middlewares/admin.js";
 
 const router = express.Router();
 
 // Get all users
-router.get("/", async (req, res) => {
+router.get("/", [auth, admin], async (req, res) => {
   const users = await User.find();
   res.status(200).json(users);
 });
 
 // Get a user by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", [auth, admin], async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(id);
-  if (!user) {
-    res
+  if (!user)
+    return res
       .status(404)
       .json({ message: "The user with the given ID was not found." });
-  }
+
   res.status(200).json(user);
 });
 
 // Update a user by ID
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(id);
   if (!user)
-    res
+    return res
       .status(404)
       .json({ message: "The user with the given ID was not found." });
 
-  const { error } = validateUser(user!);
-  if (error) res.status(400).send(error.details[0].message);
+  const { error } = validateUser(user);
+  if (error) return res.status(400).send(error.details[0].message);
   const updatedUser = await User.findByIdAndUpdate(id, req.body, {
     new: true,
     runValidators: true,
@@ -41,11 +43,11 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete a user by ID
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(id);
   if (!user) {
-    res
+    return res
       .status(404)
       .json({ message: "The user with the given ID was not found." });
   }

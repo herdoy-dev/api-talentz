@@ -1,16 +1,8 @@
 import Joi from "joi";
-import mongoose, { Document, Schema, Model } from "mongoose";
-
-// Define the Contact interface
-interface IContact extends Document {
-  firstName: string;
-  lastName: string;
-  email: string;
-  message: string;
-}
+import mongoose from "mongoose";
 
 // Define the Contact schema
-const contactSchema: Schema = new mongoose.Schema(
+const contactSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
@@ -43,18 +35,10 @@ const contactSchema: Schema = new mongoose.Schema(
 );
 
 // Create the Contact model
-export const Contact: Model<IContact> = mongoose.model<IContact>(
-  "Contact",
-  contactSchema
-);
+export const Contact = mongoose.model("Contact", contactSchema);
 
 // Define the Joi validation schema for a contact
-export const validateContact = (contact: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  message: string;
-}) => {
+export const validateContact = (contact) => {
   const schema = Joi.object({
     firstName: Joi.string().min(1).max(255).required().label("First Name"),
     lastName: Joi.string().min(1).max(255).required().label("Last Name"),
@@ -62,13 +46,16 @@ export const validateContact = (contact: {
     message: Joi.string().min(20).max(800).required().label("Message"),
   });
 
-  return schema.validate(contact, {
-    abortEarly: false, // Return all validation errors at once
-    messages: {
-      "string.min": "{#label} must be at least {#limit} characters long",
-      "string.max": "{#label} must be at most {#limit} characters long",
-      "string.email": "{#label} must be a valid email",
-      "any.required": "{#label} is required",
-    },
+  return schema.validate(contact);
+};
+
+export const validateUpdatableData = (contact) => {
+  const schema = Joi.object({
+    firstName: Joi.string().min(1).max(255).label("First Name"),
+    lastName: Joi.string().min(1).max(255).label("Last Name"),
+    email: Joi.string().min(5).max(255).email().label("Email"),
+    message: Joi.string().min(20).max(800).label("Message"),
   });
+
+  return schema.validate(contact);
 };

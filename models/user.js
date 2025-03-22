@@ -1,20 +1,10 @@
 import Joi from "joi";
 import jwt from "jsonwebtoken";
-import mongoose, { Document, Schema, Model } from "mongoose";
-import { createHash } from "../utils/hash";
-
-// Define the User interface
-interface IUser extends Document {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  isAdmin: boolean;
-  generateAuthToken(): string;
-}
+import mongoose from "mongoose";
+import { createHash } from "../utils/hash.js";
 
 // Define the User schema
-const userSchema: Schema = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
@@ -46,6 +36,10 @@ const userSchema: Schema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    role: {
+      type: String,
+      enum: ["client", "freelancer", "admin"],
+    },
   },
   {
     timestamps: true,
@@ -53,51 +47,49 @@ const userSchema: Schema = new mongoose.Schema(
 );
 
 // Hash password before saving the user
-userSchema.pre<IUser>("save", async function (next) {
+userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   try {
     this.password = await createHash(this.password);
     next();
   } catch (error) {
-    next(error as Error);
+    next(error);
   }
 });
 
 // Generate authentication token
-userSchema.methods.generateAuthToken = function (): string {
+userSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
-    { _id: this._id, isAdmin: this.isAdmin },
-    process.env.JWT_KEY as string,
+    { _id: this._id, isAdmin: this.isAdmin, role: this.role },
+    process.env.JWT_KEY,
     { expiresIn: "1h" }
   );
   return token;
 };
 
 // Create the User model
-export const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+export const User = mongoose.model("User", userSchema);
 
-// Define the Joi validation schema for a user
-export const validateUser = (user: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}) => {
+// Joi validation for user registration
+export const validateUser = (user) => {
   const schema = Joi.object({
     firstName: Joi.string().min(1).max(255).required().label("First Name"),
     lastName: Joi.string().min(1).max(255).required().label("Last Name"),
     email: Joi.string().min(5).max(255).email().required().label("Email"),
+    role: Joi.string().valid("client", "freelancer").label("Role"),
     password: Joi.string().min(8).max(1000).required().label("Password"),
   });
 
-  return schema.validate(user, {
-    abortEarly: false, // Return all validation errors at once
-    messages: {
-      "string.min": "{#label} must be at least {#limit} characters long",
-      "string.max": "{#label} must be at most {#limit} characters long",
-      "string.email": "{#label} must be a valid email",
-      "any.required": "{#label} is required",
-    },
+  return schema.validate(user);
+};
+
+// Optional: Joi validation for user login
+export const validateLogin = (credentials) => {
+  const schema = Joi.object({
+    email: Joi.string().min(5).max(255).email().required().label("Email"),
+    password: Joi.string().min(8).max(1000).required().label("Password"),
   });
+
+  return schema.validate(credentials);
 };

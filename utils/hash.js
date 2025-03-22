@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
-import logger from "../startup/logger";
+import logger from "../startup/logger.js";
 
-export const createHash = async (password: string): Promise<string> => {
+export const createHash = async (password) => {
   try {
     const saltRounds = 10;
     const salt = await bcrypt.genSalt(saltRounds);
@@ -13,10 +13,7 @@ export const createHash = async (password: string): Promise<string> => {
   }
 };
 
-export const compareHash = async (
-  password: string,
-  hash: string
-): Promise<boolean> => {
+export const compareHash = async (password, hash) => {
   try {
     return await bcrypt.compare(password, hash);
   } catch (error) {
