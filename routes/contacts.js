@@ -10,8 +10,74 @@ import {
 const router = express.Router();
 
 router.get("/", [auth, admin], async (req, res) => {
-  const contacts = await Contact.find();
-  res.status(200).send(contacts);
+  const {
+    search,
+    orderBy,
+    sortOrder = "asc",
+    currentPage = 1,
+    pageSize = 10,
+    ...filters
+  } = req.query;
+
+  let query = Contact.find();
+
+  if (search) {
+    query = query.or([
+      { firstName: { $regex: search, $options: "i" } },
+      { lastName: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+      { message: { $regex: search, $options: "i" } },
+    ]);
+  }
+
+  // Apply exact match filters for each field if provided
+  Object.keys(filters).forEach((key) => {
+    if (["firstName", "lastName", "email", "message"].includes(key)) {
+      query = query.where(key).equals(filters[key]);
+    }
+  });
+
+  // Apply sorting
+  if (orderBy) {
+    const sortDirection = sortOrder === "desc" ? -1 : 1;
+    query = query.sort({ [orderBy]: sortDirection });
+  }
+
+  // Apply pagination
+  const skip = (currentPage - 1) * pageSize;
+  query = query.skip(skip).limit(parseInt(pageSize));
+
+  const contacts = await query.exec();
+
+  let countQuery = Contact.find();
+
+  if (search) {
+    countQuery = countQuery.or([
+      { firstName: { $regex: search, $options: "i" } },
+      { lastName: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+      { message: { $regex: search, $options: "i" } },
+    ]);
+  }
+
+  Object.keys(filters).forEach((key) => {
+    if (["firstName", "lastName", "email", "message"].includes(key)) {
+      countQuery = countQuery.where(key).equals(filters[key]);
+    }
+  });
+  const count = await countQuery.countDocuments();
+  const totalCount = await Contact.countDocuments();
+
+  res.status(200).json({
+    result: contacts,
+    count: totalCount,
+    pagination: {
+      count,
+      currentPage: parseInt(currentPage),
+      pageSize: parseInt(pageSize),
+      totalPages: Math.ceil(count / pageSize),
+    },
+  });
 });
 
 router.get("/:id", [auth, admin], async (req, res) => {
