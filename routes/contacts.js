@@ -65,17 +65,15 @@ router.get("/", [auth, admin], async (req, res) => {
       countQuery = countQuery.where(key).equals(filters[key]);
     }
   });
-  const count = await countQuery.countDocuments();
-  const totalCount = await Contact.countDocuments();
+
+  const totalCount = await countQuery.countDocuments(); // Fixed: using countQuery instead of Contact
 
   res.status(200).json({
     result: contacts,
     count: totalCount,
     pagination: {
-      count,
       currentPage: parseInt(currentPage),
-      pageSize: parseInt(pageSize),
-      totalPages: Math.ceil(count / pageSize),
+      totalPages: Math.ceil(totalCount / parseInt(pageSize)),
     },
   });
 });
