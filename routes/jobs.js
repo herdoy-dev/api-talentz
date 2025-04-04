@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
 
   let query = Job.find()
     .populate("category", "name")
-    .populate("author", "firstName");
+    .populate("author", "firstName lastName");
 
   if (search) {
     query = query.or([
