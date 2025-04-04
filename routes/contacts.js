@@ -74,6 +74,7 @@ router.get("/", [auth, admin], async (req, res) => {
     pagination: {
       currentPage: parseInt(currentPage),
       totalPages: Math.ceil(totalCount / parseInt(pageSize)),
+      pageSize,
     },
   });
 });
