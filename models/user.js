@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema(
       index: true,
       required: true,
     },
+    stories: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
     password: {
       type: String,
       minLength: 8,
