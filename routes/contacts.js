@@ -14,7 +14,7 @@ router.get("/", [auth, admin], async (req, res) => {
     search,
     orderBy,
     sortOrder = "asc",
-    currentPage = 1,
+    page = 1,
     pageSize = 10,
     ...filters
   } = req.query;
@@ -44,7 +44,7 @@ router.get("/", [auth, admin], async (req, res) => {
   }
 
   // Apply pagination
-  const skip = (currentPage - 1) * pageSize;
+  const skip = (page - 1) * pageSize;
   query = query.skip(skip).limit(parseInt(pageSize));
 
   const contacts = await query.exec();
@@ -72,8 +72,8 @@ router.get("/", [auth, admin], async (req, res) => {
     result: contacts,
     count: totalCount,
     pagination: {
-      currentPage: parseInt(currentPage),
-      totalPages: Math.ceil(totalCount / parseInt(pageSize)),
+      currentPage: parseInt(page),
+      pageCount: Math.ceil(totalCount / parseInt(pageSize)),
       pageSize,
     },
   });

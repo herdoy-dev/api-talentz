@@ -70,8 +70,7 @@ userSchema.methods.generateAuthToken = function () {
       isAdmin: this.isAdmin,
       role: this.role,
     },
-    process.env.JWT_KEY,
-    { expiresIn: "1h" }
+    process.env.JWT_KEY
   );
   return token;
 };
