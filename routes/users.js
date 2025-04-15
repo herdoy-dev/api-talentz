@@ -96,9 +96,6 @@ router.put("/:id", auth, async (req, res) => {
     return res
       .status(404)
       .json({ message: "The user with the given ID was not found." });
-
-  const { error } = validateUser(user);
-  if (error) return res.status(400).send(error.details[0].message);
   const updatedUser = await User.findByIdAndUpdate(id, req.body, {
     new: true,
     runValidators: true,

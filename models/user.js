@@ -26,7 +26,32 @@ const userSchema = new mongoose.Schema(
       index: true,
       required: true,
     },
-    stories: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+    image: {
+      type: String,
+      minLength: 5,
+      maxLength: 10000,
+    },
+    phone: {
+      type: String,
+      minLength: 5,
+      maxLength: 255,
+    },
+    title: {
+      type: String,
+      minLength: 1,
+      maxLength: 255,
+    },
+    location: {
+      type: String,
+      minLength: 1,
+      maxLength: 255,
+    },
+    about: {
+      type: String,
+      minLength: 100,
+      maxLength: 10000,
+    },
+    jobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
     password: {
       type: String,
       minLength: 8,
