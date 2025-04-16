@@ -41,6 +41,8 @@ const userSchema = new mongoose.Schema(
       minLength: 1,
       maxLength: 255,
     },
+    skills: [{ type: String, minLength: 1, maxLength: 255 }],
+    languages: [{ type: String, minLength: 1, maxLength: 255 }],
     location: {
       type: String,
       minLength: 1,
