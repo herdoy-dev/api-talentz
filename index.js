@@ -7,6 +7,7 @@ import contacts from "./routes/contacts.js";
 import users from "./routes/users.js";
 import categories from "./routes/categorys.js";
 import jobs from "./routes/jobs.js";
+import educations from "./routes/educations.js";
 import me from "./routes/me.js";
 import startServer from "./startup/start-server.js";
 
@@ -21,6 +22,7 @@ app.use(express.json());
 // Routes
 app.use("/api/contacts", contacts);
 app.use("/api/users", users);
+app.use("/api/educations", educations);
 app.use("/api/me", me);
 app.use("/api/auth", auth);
 app.use("/api/categorys", categories);
