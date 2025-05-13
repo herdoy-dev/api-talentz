@@ -8,7 +8,9 @@ import contacts from "./routes/contacts.js";
 import educations from "./routes/educations.js";
 import jobs from "./routes/jobs.js";
 import me from "./routes/me.js";
+import packages from "./routes/packages.js";
 import portfolios from "./routes/portfolios.js";
+import services from "./routes/services.js";
 import users from "./routes/users.js";
 import startServer from "./startup/start-server.js";
 
@@ -28,6 +30,8 @@ app.use("/api/portfolios", portfolios);
 app.use("/api/me", me);
 app.use("/api/auth", auth);
 app.use("/api/categorys", categories);
+app.use("/api/services", services);
+app.use("/api/packages", packages);
 app.use("/api/jobs", jobs);
 
 // Start server
