@@ -19,8 +19,7 @@ router.get("/", async (req, res) => {
   const packages = await PackageModel.find({ serviceId }).select("-__v");
 
   res.status(200).json({
-    success: true,
-    data: packages,
+    result: packages,
     count: packages.length,
   });
 });
