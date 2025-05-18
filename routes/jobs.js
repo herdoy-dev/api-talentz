@@ -1,6 +1,6 @@
 import express from "express";
 import auth from "../middlewares/auth.js";
-import { Job, validateJob, validateUpdatableData } from "../models/job.js";
+import { Job, validateJob, validateUpdatableJobData } from "../models/job.js";
 
 const router = express.Router();
 
@@ -124,7 +124,7 @@ router.put("/:id", auth, async (req, res) => {
     return res.status(403).send("Unauthorized");
   }
 
-  const { error } = validateUpdatableData(req.body);
+  const { error } = validateUpdatableJobData(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   const updatedJob = await Job.findByIdAndUpdate(
