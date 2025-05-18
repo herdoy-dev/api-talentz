@@ -7,6 +7,7 @@ import categories from "./routes/categorys.js";
 import contacts from "./routes/contacts.js";
 import educations from "./routes/educations.js";
 import jobs from "./routes/jobs.js";
+import comments from "./routes/comments.js";
 import me from "./routes/me.js";
 import packages from "./routes/packages.js";
 import portfolios from "./routes/portfolios.js";
@@ -33,6 +34,7 @@ app.use("/api/categorys", categories);
 app.use("/api/services", services);
 app.use("/api/packages", packages);
 app.use("/api/jobs", jobs);
+app.use("/api/comments", comments);
 
 // Start server
 startServer(app);
