@@ -10,6 +10,7 @@ import jobs from "./routes/jobs.js";
 import comments from "./routes/comments.js";
 import me from "./routes/me.js";
 import packages from "./routes/packages.js";
+import applications from "./routes/applications.js";
 import portfolios from "./routes/portfolios.js";
 import services from "./routes/services.js";
 import users from "./routes/users.js";
@@ -35,6 +36,7 @@ app.use("/api/services", services);
 app.use("/api/packages", packages);
 app.use("/api/jobs", jobs);
 app.use("/api/comments", comments);
+app.use("/api/applications", applications);
 
 // Start server
 startServer(app);
