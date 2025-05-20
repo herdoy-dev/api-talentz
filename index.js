@@ -15,6 +15,7 @@ import portfolios from "./routes/portfolios.js";
 import services from "./routes/services.js";
 import users from "./routes/users.js";
 import chats from "./routes/chats.js";
+import messages from "./routes/messages.js";
 import startServer from "./startup/start-server.js";
 
 const app = express();
@@ -39,6 +40,7 @@ app.use("/api/jobs", jobs);
 app.use("/api/comments", comments);
 app.use("/api/applications", applications);
 app.use("/api/chats", chats);
+app.use("/api/messages", messages);
 
 // Start server
 startServer(app);

@@ -47,21 +47,14 @@ router.get("/buyer", auth, async (req, res) => {
 });
 
 router.post("/", auth, async (req, res) => {
-  try {
-    const body = req.body;
-
-    const ifExist = await Chat.findOne({
-      seller: body.seller,
-      buyer: body.buyer,
-    });
-
-    if (ifExist) return res.status(200).send(ifExist);
-
-    const newChat = await Chat.create(body);
-    res.status(201).send(newChat);
-  } catch (err) {
-    res.status(500).send("Server Error");
-  }
+  const body = req.body;
+  const ifExist = await Chat.findOne({
+    seller: body.seller,
+    buyer: body.buyer,
+  });
+  if (ifExist) return res.status(200).send(ifExist);
+  const newChat = await Chat.create(body);
+  res.status(201).send(newChat);
 });
 
 router.delete("/:id", auth, async (req, res) => {
