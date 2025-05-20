@@ -31,7 +31,8 @@ router.post("/sign-up", async (req, res) => {
     .header("access-control-expose-headers", "x-auth-token")
     .send({
       user: _.pick(newUser, ["_id", "firstName", "lastName", "email"]),
-      token,
+      value: token,
+      role: newUser.role,
     });
 });
 
@@ -52,7 +53,7 @@ router.post("/log-in", async (req, res) => {
 
   // Generate token and send response
   const token = user.generateAuthToken();
-  res.status(200).send(token);
+  res.status(200).send({ value: token, role: user.role });
 });
 
 export default router;
