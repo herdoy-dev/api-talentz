@@ -2,20 +2,21 @@ import cors from "cors";
 import express from "express";
 import "express-async-errors";
 import helmet from "helmet";
+import applications from "./routes/applications.js";
 import auth from "./routes/auth.js";
 import categories from "./routes/categorys.js";
+import chats from "./routes/chats.js";
+import comments from "./routes/comments.js";
 import contacts from "./routes/contacts.js";
 import educations from "./routes/educations.js";
 import jobs from "./routes/jobs.js";
-import comments from "./routes/comments.js";
 import me from "./routes/me.js";
+import messages from "./routes/messages.js";
 import packages from "./routes/packages.js";
-import applications from "./routes/applications.js";
 import portfolios from "./routes/portfolios.js";
 import services from "./routes/services.js";
+import talents from "./routes/talents.js";
 import users from "./routes/users.js";
-import chats from "./routes/chats.js";
-import messages from "./routes/messages.js";
 import startServer from "./startup/start-server.js";
 
 const app = express();
@@ -41,6 +42,7 @@ app.use("/api/comments", comments);
 app.use("/api/applications", applications);
 app.use("/api/chats", chats);
 app.use("/api/messages", messages);
+app.use("/api/talents", talents);
 
 // Start server
 startServer(app);
