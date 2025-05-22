@@ -51,9 +51,12 @@ router.post("/", auth, async (req, res) => {
   const ifExist = await Chat.findOne({
     seller: body.seller,
     buyer: body.buyer,
-  });
+  }).populate("seller", "firstName lastName image");
   if (ifExist) return res.status(200).send(ifExist);
-  const newChat = await Chat.create(body);
+  const newChat = await Chat.create(body).populate(
+    "seller",
+    "firstName lastName image"
+  );
   res.status(201).send(newChat);
 });
 
