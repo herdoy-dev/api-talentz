@@ -53,7 +53,6 @@ const userSchema = new mongoose.Schema(
       minLength: 100,
       maxLength: 10000,
     },
-    jobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
     password: {
       type: String,
       minLength: 8,
@@ -67,6 +66,10 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["client", "freelancer", "admin"],
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   {
@@ -96,6 +99,7 @@ userSchema.methods.generateAuthToken = function () {
       email: this.email,
       isAdmin: this.isAdmin,
       role: this.role,
+      isVerified: this.isVerified,
     },
     process.env.JWT_KEY
   );
