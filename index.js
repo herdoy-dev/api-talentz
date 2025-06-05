@@ -22,7 +22,12 @@ import startServer from "./startup/start-server.js";
 
 const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({
+    origin: process.env.ORIGIN,
+    credentials: true,
+  })
+);
 
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
