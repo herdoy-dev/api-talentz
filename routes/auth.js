@@ -1,5 +1,4 @@
 import express from "express";
-import _ from "lodash";
 import signupCode from "../mails/signupCode.js";
 import auth from "../middlewares/auth.js";
 import { User, validateLogin, validateUser } from "../models/user.js";
@@ -46,13 +45,17 @@ router.post("/sign-up", async (req, res) => {
 
   // Generate token and send response
   const token = newUser.generateAuthToken();
-  res
-    .header("x-auth-token", token)
-    .header("access-control-expose-headers", "x-auth-token")
-    .send({
-      user: _.pick(newUser, ["_id", "firstName", "lastName", "email"]),
-      value: token,
-      role: newUser.role,
+  return res
+    .status(200)
+    .cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+    .json({
+      success: true,
+      message: "Signup success",
     });
 });
 
@@ -73,38 +76,68 @@ router.post("/log-in", async (req, res) => {
 
   // Generate token and send response
   const token = user.generateAuthToken();
-  res.status(200).send({ value: token, role: user.role });
+  return res
+    .status(200)
+    .cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+    .json({
+      success: true,
+      message: "Login success",
+    });
 });
 
 router.post("/verify", auth, async (req, res) => {
   const { email, code } = req.body;
   const getCode = await Vcode.findOne({ email, code });
-  if (!getCode)
+  if (!getCode) {
     return res.json({ success: false, message: "Invalid Verification Code" });
-  await User.findOneAndUpdate({ email }, { isVerified: true });
-  await Vcode.findByIdAndDelete(getCode._id);
-  return res.json({ success: true, message: "Email Verification Completed" });
+  } else {
+    await User.findOneAndUpdate({ email: getCode.email }, { isVerified: true });
+    await Vcode.findByIdAndDelete(getCode._id);
+    return res.json({ success: true, message: "Email Verification Completed" });
+  }
 });
 
 router.post("/vcode/resend", auth, async (req, res) => {
   const { email } = req.body;
   const getCode = await Vcode.findOne({ email });
-  await Vcode.findByIdAndDelete(getCode._id);
-  const code = generateCode();
-  await Vcode.create({
-    code,
-    email,
-  });
+  if (!getCode) {
+    const code = generateCode();
+    await Vcode.create({
+      code,
+      email,
+    });
 
-  await transporter.sendMail({
-    from: "herdoy.dev@gmail.com",
-    to: email,
-    subject: `Your verification code is ${code}`,
-    text: "Hello world?",
-    html: signupCode(code),
-  });
+    await transporter.sendMail({
+      from: "herdoy.dev@gmail.com",
+      to: email,
+      subject: `Your verification code is ${code}`,
+      text: "Hello world?",
+      html: signupCode(code),
+    });
 
-  return res.json({ success: true, message: "Verification Code Resended" });
+    return res.json({ success: true, message: "Verification Code Resended" });
+  } else {
+    const code = generateCode();
+    await Vcode.findByIdAndDelete(getCode._id);
+    await Vcode.create({
+      code,
+      email,
+    });
+    await transporter.sendMail({
+      from: "herdoy.dev@gmail.com",
+      to: email,
+      subject: `Your verification code is ${code}`,
+      text: "Hello world?",
+      html: signupCode(code),
+    });
+
+    return res.json({ success: true, message: "Verification Code Resended" });
+  }
 });
 
 export default router;

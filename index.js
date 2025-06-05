@@ -4,6 +4,7 @@ import "express-async-errors";
 import helmet from "helmet";
 import applications from "./routes/applications.js";
 import auth from "./routes/auth.js";
+import balances from "./routes/balances.js";
 import categories from "./routes/categorys.js";
 import chats from "./routes/chats.js";
 import comments from "./routes/comments.js";
@@ -17,13 +18,21 @@ import portfolios from "./routes/portfolios.js";
 import services from "./routes/services.js";
 import talents from "./routes/talents.js";
 import users from "./routes/users.js";
-import balances from "./routes/balances.js";
 import startServer from "./startup/start-server.js";
 
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://talentz.netlify.app",
+      "https://findtalentz.com",
+    ],
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
