@@ -55,7 +55,7 @@ router.post("/sign-up", async (req, res) => {
     domain:
       process.env.NODE_ENV === "development"
         ? "localhost"
-        : "plankton-app-hjfuy.ondigitalocean.app",
+        : "https://findtalentz.com",
   });
 
   return res.status(200).json({
@@ -91,7 +91,7 @@ router.post("/log-in", async (req, res) => {
     domain:
       process.env.NODE_ENV === "development"
         ? "localhost"
-        : "plankton-app-hjfuy.ondigitalocean.app",
+        : "https://findtalentz.com",
   });
 
   return res.status(200).json({
