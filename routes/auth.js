@@ -45,18 +45,20 @@ router.post("/sign-up", async (req, res) => {
 
   // Generate token and send response
   const token = newUser.generateAuthToken();
-  return res
-    .status(200)
-    .cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000,
-    })
-    .json({
-      success: true,
-      message: "Signup success",
-    });
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    domain: process.env.COOKIE_DOMAIN,
+    path: "/",
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Signup success",
+  });
 });
 
 // Log-in route
@@ -76,18 +78,18 @@ router.post("/log-in", async (req, res) => {
 
   // Generate token and send response
   const token = user.generateAuthToken();
-  return res
-    .status(200)
-    .cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000,
-    })
-    .json({
-      success: true,
-      message: "Login success",
-    });
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    domain: process.env.COOKIE_DOMAIN,
+    path: "/",
+  });
+  return res.status(200).json({
+    success: true,
+    message: "Login success",
+  });
 });
 
 router.post("/verify", auth, async (req, res) => {
