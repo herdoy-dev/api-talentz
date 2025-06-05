@@ -48,7 +48,7 @@ router.post("/sign-up", async (req, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true,
+    secure: false,
     sameSite: "strict",
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
@@ -78,7 +78,7 @@ router.post("/log-in", async (req, res) => {
   const token = user.generateAuthToken();
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true,
+    secure: false,
     sameSite: "strict",
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
