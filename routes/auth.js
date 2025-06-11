@@ -49,13 +49,8 @@ router.post("/sign-up", async (req, res) => {
   res.cookie("token", token, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "none",
     maxAge: 24 * 60 * 60 * 1000,
-    sameSite: "lax",
-    domain:
-      process.env.NODE_ENV === "development"
-        ? "localhost"
-        : "https://findtalentz.com",
   });
 
   return res.status(200).json({
@@ -85,13 +80,8 @@ router.post("/log-in", async (req, res) => {
   res.cookie("token", token, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "none",
     maxAge: 24 * 60 * 60 * 1000,
-    sameSite: "lax",
-    domain:
-      process.env.NODE_ENV === "development"
-        ? "localhost"
-        : "https://findtalentz.com",
   });
 
   return res.status(200).json({
