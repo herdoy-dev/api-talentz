@@ -18,9 +18,12 @@ import portfolios from "./routes/portfolios.js";
 import services from "./routes/services.js";
 import talents from "./routes/talents.js";
 import users from "./routes/users.js";
+import deposit from "./routes/deposit.js";
+import webhook from "./routes/webhook.js";
 import startServer from "./startup/start-server.js";
 
 const app = express();
+app.use("/api/webhook", webhook);
 
 app.use(
   cors({
@@ -50,6 +53,7 @@ app.use("/api/chats", chats);
 app.use("/api/messages", messages);
 app.use("/api/talents", talents);
 app.use("/api/balances", balances);
+app.use("/api/deposit", deposit);
 
 // Start server
 startServer(app);

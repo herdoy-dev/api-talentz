@@ -90,6 +90,18 @@ router.post("/log-in", async (req, res) => {
   });
 });
 
+router.post("/log-out", async (req, res) => {
+  return res
+    .status(200)
+    .cookie("token", "", {
+      httpOnly: true,
+      maxAge: 0,
+      secure: true,
+      sameSite: "none",
+    })
+    .send({ success: true, message: "Logged out successfully!" });
+});
+
 router.post("/verify", auth, async (req, res) => {
   const { email, code } = req.body;
   const getCode = await Vcode.findOne({ email, code });
