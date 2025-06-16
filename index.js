@@ -22,12 +22,16 @@ import deposit from "./routes/deposit.js";
 import webhook from "./routes/webhook.js";
 import startServer from "./startup/start-server.js";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const app = express();
 app.use("/api/webhook", webhook);
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.ORIGIN,
     credentials: true,
   })
 );
