@@ -4,7 +4,7 @@ import { Application, validateApplication } from "../models/application.js";
 
 const router = express.Router();
 
-// GET comments by jobId and populate author
+// GET Application by jobId and populate author
 router.get("/", async (req, res) => {
   const { jobId } = req.query;
 
@@ -24,6 +24,17 @@ router.get("/", async (req, res) => {
     result: comments,
     count: comments.length,
   });
+});
+
+// GET Application by jobId and populate author
+router.get("/my", auth, async (req, res) => {
+  const { jobId } = req.query;
+  const application = await Application.findOne({
+    author: req.user._id,
+    jobId,
+  }).populate("author", "firstName lastName image skills title location");
+
+  res.status(200).json(application);
 });
 
 // Create a new comment
