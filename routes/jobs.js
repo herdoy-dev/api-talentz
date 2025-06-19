@@ -1,6 +1,7 @@
 import express from "express";
 import auth from "../middlewares/auth.js";
 import { Job, validateJob, validateUpdatableJobData } from "../models/job.js";
+import Response from "../utils/Response.js";
 
 const router = express.Router();
 
@@ -14,7 +15,94 @@ router.get("/", async (req, res) => {
     ...filters
   } = req.query;
 
-  let query = Job.find()
+  let query = Job.find({ status: "OPEN" })
+    .populate("category", "name")
+    .populate("author", "firstName lastName");
+
+  if (search) {
+    query = query.or([
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ]);
+  }
+
+  // Apply exact match filters for each field if provided
+  Object.keys(filters).forEach((key) => {
+    if (
+      [
+        "budget",
+        "type",
+        "category",
+        "requiredLevel",
+        "status",
+        "jobLength",
+        "jobSize",
+      ].includes(key)
+    ) {
+      query = query.where(key).equals(filters[key]);
+    }
+  });
+
+  // Apply sorting
+  if (orderBy) {
+    const sortDirection = sortOrder === "desc" ? -1 : 1;
+    query = query.sort({ [orderBy]: sortDirection });
+  }
+
+  // Apply pagination
+  const skip = (page - 1) * pageSize;
+  query = query.skip(skip).limit(parseInt(pageSize));
+
+  const jobs = await query.exec();
+
+  // Create count query (should match the same filters as the main query)
+  let countQuery = Job.find();
+
+  if (search) {
+    countQuery = countQuery.or([
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ]);
+  }
+
+  Object.keys(filters).forEach((key) => {
+    if (
+      [
+        "budget",
+        "type",
+        "category",
+        "requiredLevel",
+        "jobLength",
+        "jobSize",
+      ].includes(key)
+    ) {
+      countQuery = countQuery.where(key).equals(filters[key]);
+    }
+  });
+
+  const totalCount = await countQuery.countDocuments();
+
+  res
+    .status(200)
+    .send(new Response(true, "Fetched", jobs, totalCount, page, pageSize));
+});
+
+router.get("/my", async (req, res) => {
+  const {
+    search,
+    orderBy,
+    userId,
+    sortOrder = "asc",
+    status,
+    page = 1,
+    pageSize = 10,
+    ...filters
+  } = req.query;
+
+  if (!userId)
+    return res.status(400).send(new Response(false, "UserId Required"));
+
+  let query = Job.find({ author: userId, status })
     .populate("category", "name")
     .populate("author", "firstName lastName");
 
@@ -80,15 +168,9 @@ router.get("/", async (req, res) => {
 
   const totalCount = await countQuery.countDocuments();
 
-  res.status(200).json({
-    result: jobs,
-    count: totalCount,
-    pagination: {
-      currentPage: parseInt(page),
-      pageCount: Math.ceil(totalCount / parseInt(pageSize)),
-      pageSize: parseInt(pageSize),
-    },
-  });
+  res
+    .status(200)
+    .send(new Response(true, "Fetched", jobs, totalCount, page, pageSize));
 });
 
 router.get("/:id", auth, async (req, res) => {

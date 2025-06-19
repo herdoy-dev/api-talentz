@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema(
     },
     image: {
       type: String,
+      default: "https://i.ibb.co/pBFLMc0m/placeholder.jpg",
       minLength: 5,
       maxLength: 10000,
     },

@@ -16,6 +16,11 @@ const jobSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["IN_PROGRESS", "OPEN", "COMPLETED"],
+      default: "OPEN",
+    },
     description: {
       type: String,
       minlength: 300,
