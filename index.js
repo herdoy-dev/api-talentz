@@ -39,7 +39,6 @@ app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Routes
 app.use("/api/contacts", contacts);
 app.use("/api/users", users);
 app.use("/api/educations", educations);

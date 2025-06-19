@@ -26,22 +26,16 @@ router.post(
         const orderId = session.metadata?.orderId;
         const jobId = session.metadata?.jobId;
 
-        const transaction = await Transaction.findOne({
+        await Transaction.findByIdAndUpdate(transactionId, {
+          status: "completed",
           gatewayRef: session.id,
         });
-        if (transaction && transaction.status !== "completed") {
-          transaction.status = "completed";
-          await transaction.save();
 
-          await Transaction.findByIdAndUpdate(transactionId, {
-            status: "completed",
-            gatewayRef: session.id,
-          });
-          await Order.findByIdAndUpdate(orderId, {
-            status: "in_progress",
-          });
-          await Job.findByIdAndUpdate(jobId, { status: "IN_PROGRESS" });
-        }
+        await Order.findByIdAndUpdate(orderId, {
+          status: "in_progress",
+        });
+
+        await Job.findByIdAndUpdate(jobId, { status: "IN_PROGRESS" });
       }
 
       res.status(200).send();
