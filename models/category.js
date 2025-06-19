@@ -10,12 +10,6 @@ const categorySchema = new mongoose.Schema(
       maxLength: 255,
       required: true,
     },
-    jobs: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "Job",
-      },
-    ],
   },
   {
     timestamps: true,

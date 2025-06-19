@@ -4,7 +4,6 @@ import "express-async-errors";
 import helmet from "helmet";
 import applications from "./routes/applications.js";
 import auth from "./routes/auth.js";
-import balances from "./routes/balances.js";
 import categories from "./routes/categorys.js";
 import chats from "./routes/chats.js";
 import comments from "./routes/comments.js";
@@ -13,12 +12,12 @@ import educations from "./routes/educations.js";
 import jobs from "./routes/jobs.js";
 import me from "./routes/me.js";
 import messages from "./routes/messages.js";
+import orders from "./routes/orders.js";
 import packages from "./routes/packages.js";
 import portfolios from "./routes/portfolios.js";
 import services from "./routes/services.js";
 import talents from "./routes/talents.js";
 import users from "./routes/users.js";
-import deposit from "./routes/deposit.js";
 import webhook from "./routes/webhook.js";
 import startServer from "./startup/start-server.js";
 
@@ -56,8 +55,7 @@ app.use("/api/applications", applications);
 app.use("/api/chats", chats);
 app.use("/api/messages", messages);
 app.use("/api/talents", talents);
-app.use("/api/balances", balances);
-app.use("/api/deposit", deposit);
+app.use("/api/orders", orders);
 
 // Start server
 startServer(app);

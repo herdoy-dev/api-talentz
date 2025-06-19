@@ -87,11 +87,10 @@ router.get("/", async (req, res) => {
     .send(new Response(true, "Fetched", jobs, totalCount, page, pageSize));
 });
 
-router.get("/my", async (req, res) => {
+router.get("/my", auth, async (req, res) => {
   const {
     search,
     orderBy,
-    userId,
     sortOrder = "asc",
     status,
     page = 1,
@@ -99,10 +98,7 @@ router.get("/my", async (req, res) => {
     ...filters
   } = req.query;
 
-  if (!userId)
-    return res.status(400).send(new Response(false, "UserId Required"));
-
-  let query = Job.find({ author: userId, status })
+  let query = Job.find({ author: req.user._id, status })
     .populate("category", "name")
     .populate("author", "firstName lastName");
 

@@ -1,24 +1,31 @@
 import express from "express";
-const router = express.Router();
+import auth from "../middlewares/auth.js";
+import { Order } from "../models/order.js";
 import { Transaction } from "../models/transaction.js";
-import { User } from "../models/user.js";
 import stripe from "../utils/stripe.js";
+const router = express.Router();
 
-router.post("/create-checkout-session", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   try {
-    const { amount, userId } = req.body;
+    const { amount, seller, deliveryDate, job } = req.body;
 
-    if (!amount || isNaN(amount) || amount <= 0) {
-      return res.status(400).json({ error: "Invalid amount" });
-    }
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
+    const userId = req.user._id;
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    const transaction = await Transaction.create({
+      userId,
+      type: "checkout",
+      amount,
+      status: "pending",
+    });
+
+    const order = await Order.create({
+      buyer: userId,
+      seller,
+      deliveryDate,
+      amount,
+      job,
+      status: "pending",
+    });
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -37,15 +44,11 @@ router.post("/create-checkout-session", async (req, res) => {
       mode: "payment",
       success_url: `${process.env.ORIGIN}/deposit-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.ORIGIN}/deposit-cancelled`,
-      metadata: { userId },
-    });
-
-    await Transaction.create({
-      userId,
-      type: "deposit",
-      amount,
-      status: "pending",
-      gatewayRef: session.id,
+      metadata: {
+        transactionId: transaction._id.toString(), // Convert to string
+        orderId: order._id.toString(), // Convert to string
+        jobId: job.toString(), // Also convert job ID to string if it's not already
+      },
     });
 
     res.json({ url: session.url });

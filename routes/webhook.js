@@ -1,12 +1,13 @@
 import express from "express";
-import stripe from "../utils/stripe.js";
+import { Job } from "../models/job.js";
+import { Order } from "../models/order.js";
 import { Transaction } from "../models/transaction.js";
-import { User } from "../models/user.js";
+import stripe from "../utils/stripe.js";
 
 const router = express.Router();
 
 router.post(
-  "/stripe-webhook",
+  "/",
   express.raw({ type: "application/json" }),
   async (req, res) => {
     const sig = req.headers["stripe-signature"];
@@ -21,7 +22,9 @@ router.post(
 
       if (event.type === "checkout.session.completed") {
         const session = event.data.object;
-        const userId = session.metadata?.userId;
+        const transactionId = session.metadata?.transactionId;
+        const orderId = session.metadata?.orderId;
+        const jobId = session.metadata?.jobId;
 
         const transaction = await Transaction.findOne({
           gatewayRef: session.id,
@@ -30,9 +33,14 @@ router.post(
           transaction.status = "completed";
           await transaction.save();
 
-          await User.findByIdAndUpdate(userId, {
-            $inc: { walletBalance: transaction.amount },
+          await Transaction.findByIdAndUpdate(transactionId, {
+            status: "completed",
+            gatewayRef: session.id,
           });
+          await Order.findByIdAndUpdate(orderId, {
+            status: "in_progress",
+          });
+          await Job.findByIdAndUpdate(jobId, { status: "IN_PROGRESS" });
         }
       }
 
