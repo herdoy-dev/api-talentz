@@ -26,6 +26,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+app.use("/api/webhook", webhook);
 
 app.use(
   cors({
@@ -54,7 +55,6 @@ app.use("/api/chats", chats);
 app.use("/api/messages", messages);
 app.use("/api/talents", talents);
 app.use("/api/orders", orders);
-app.use("/api/webhook", webhook);
 
 // Start server
 startServer(app);
