@@ -5,7 +5,7 @@ import { Comment, validateComment } from "../models/comment.js";
 const router = express.Router();
 
 // GET comments by jobId and populate author
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   const { jobId } = req.query;
 
   if (!jobId || typeof jobId !== "string") {
@@ -15,10 +15,10 @@ router.get("/", async (req, res) => {
     });
   }
 
-  const comments = await Comment.find({ jobId }).populate(
-    "author",
-    "firstName lastName image"
-  );
+  const comments = await Comment.find({
+    jobId,
+    author: { $ne: req.user._id },
+  }).populate("author", "firstName lastName image");
 
   res.status(200).json({
     result: comments,

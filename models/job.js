@@ -16,6 +16,10 @@ const jobSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    seller: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     status: {
       type: String,
       enum: ["IN_PROGRESS", "OPEN", "COMPLETED"],

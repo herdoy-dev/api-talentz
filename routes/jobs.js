@@ -98,7 +98,10 @@ router.get("/my", auth, async (req, res) => {
     ...filters
   } = req.query;
 
-  let query = Job.find({ author: req.user._id, status })
+  let query = Job.find({
+    $or: [{ author: req.user._id }, { seller: req.user._id }],
+    status,
+  })
     .populate("category", "name")
     .populate("author", "firstName lastName");
 
