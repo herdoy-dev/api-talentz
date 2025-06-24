@@ -31,7 +31,6 @@ export const validateComment = (comment) => {
   const schema = Joi.object({
     message: Joi.string().min(2).max(1000).required().label("Message"),
     jobId: Joi.string().required().label("Job"),
-    author: Joi.string().required().label("Author"),
   });
   return schema.validate(comment);
 };

@@ -6,6 +6,7 @@ import {
   validateContact,
   validateUpdatableData,
 } from "../models/contact.js";
+import Response from "../utils/Response.js";
 
 const router = express.Router();
 
@@ -68,32 +69,31 @@ router.get("/", [auth, admin], async (req, res) => {
 
   const totalCount = await countQuery.countDocuments(); // Fixed: using countQuery instead of Contact
 
-  res.status(200).json({
-    result: contacts,
-    count: totalCount,
-    pagination: {
-      currentPage: parseInt(page),
-      pageCount: Math.ceil(totalCount / parseInt(pageSize)),
-      pageSize,
-    },
-  });
+  res
+    .status(200)
+    .json(new Response(true, "Fetched", contacts, totalCount, page, pageSize));
 });
 
 router.get("/:id", [auth, admin], async (req, res) => {
   const _id = req.params.id;
   const contact = await Contact.findById(_id);
   if (!contact)
-    return res.status(404).send("The contact with the given ID was not found!");
+    return res
+      .status(404)
+      .send(
+        new Response(false, "The contact with the given ID was not found!")
+      );
 
-  res.status(200).send(contact);
+  res.status(200).send(new Response(true, "Success", contact));
 });
 
 router.post("/", async (req, res) => {
   const body = req.body;
   const { error } = validateContact(body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error)
+    return res.status(400).send(new Response(false, error.details[0].message));
   const newContact = await Contact.create(body);
-  res.status(201).send(newContact);
+  res.status(201).send(new Response(true, "Success", newContact));
 });
 
 router.put("/:id", [auth, admin], async (req, res) => {
@@ -103,16 +103,20 @@ router.put("/:id", [auth, admin], async (req, res) => {
     return res
       .status(404)
       .send(
-        "The contact with the given ID was not found or has already been deleted."
+        new Response(
+          false,
+          "The contact with the given ID was not found or has already been deleted."
+        )
       );
 
   const body = req.body;
   const { error } = validateUpdatableData(body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error)
+    return res.status(400).send(new Response(false, error.details[0].message));
   const updatedContact = await Contact.findByIdAndUpdate(_id, body, {
     new: true,
   });
-  res.status(200).send(updatedContact);
+  res.status(200).send(new Response(true, "Update Success", updatedContact));
 });
 
 router.delete("/:id", [auth, admin], async (req, res) => {
@@ -122,12 +126,15 @@ router.delete("/:id", [auth, admin], async (req, res) => {
     return res
       .status(404)
       .send(
-        "The contact with the given ID was not found or has already been deleted."
+        new Response(
+          false,
+          "The contact with the given ID was not found or has already been deleted."
+        )
       );
 
   const deletedContact = await Contact.findByIdAndDelete(_id);
 
-  res.status(200).send(deletedContact);
+  res.status(200).send(new Response(true, "Delete Success", deletedContact));
 });
 
 export default router;

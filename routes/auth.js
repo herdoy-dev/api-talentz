@@ -5,6 +5,7 @@ import { User, validateLogin, validateUser } from "../models/user.js";
 import { Vcode } from "../models/vcode.js";
 import generateCode from "../utils/code.js";
 import { compareHash } from "../utils/hash.js";
+import Response from "../utils/Response.js";
 import transporter from "../utils/transporter.js";
 
 const router = express.Router();
@@ -18,7 +19,8 @@ router.post("/sign-up", async (req, res) => {
 
   // Check if user already exists
   const isExist = await User.findOne({ email });
-  if (isExist) return res.status(409).send("User already exists!");
+  if (isExist)
+    return res.status(409).send(new Response(false, "User already exists!"));
 
   const newUser = await User.create({
     firstName,
@@ -46,59 +48,42 @@ router.post("/sign-up", async (req, res) => {
   // Generate token and send response
   const token = newUser.generateAuthToken();
 
-  return res.status(200).json({
-    success: true,
-    message: "Signup Success",
-    data: token,
-  });
+  return res.status(200).json(new Response(true, "Signup Success", token));
 });
 
 // Log-in route
 router.post("/log-in", async (req, res) => {
   const { error } = validateLogin(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error)
+    return res.status(400).send(new Response(false, error.details[0].message));
 
   const { email, password } = req.body;
 
   // Check if user exists
   const user = await User.findOne({ email });
-  if (!user) return res.status(401).send("Invalid credentials");
+  if (!user)
+    return res.status(401).send(new Response(false, "Invalid credentials"));
 
   // Compare passwords
   const checkPassword = await compareHash(password, user.password);
-  if (!checkPassword) return res.status(401).send("Invalid credentials");
+  if (!checkPassword)
+    return res.status(401).send(new Response(false, "Invalid credentials"));
 
   // Generate token and send response
   const token = user.generateAuthToken();
 
-  return res.status(200).json({
-    success: true,
-    message: "Login success",
-    data: token,
-  });
-});
-
-router.post("/log-out", async (req, res) => {
-  return res
-    .status(200)
-    .cookie("token", "", {
-      httpOnly: true,
-      maxAge: 0,
-      secure: true,
-      sameSite: "none",
-    })
-    .send({ success: true, message: "Logged out successfully!" });
+  return res.status(200).json(new Response(true, "Login success", token));
 });
 
 router.post("/verify", auth, async (req, res) => {
   const { email, code } = req.body;
   const getCode = await Vcode.findOne({ email, code });
   if (!getCode) {
-    return res.json({ success: false, message: "Invalid Verification Code" });
+    return res.json(new Response(false, "Invalid Verification Code"));
   } else {
     await User.findOneAndUpdate({ email: getCode.email }, { isVerified: true });
     await Vcode.findByIdAndDelete(getCode._id);
-    return res.json({ success: true, message: "Email Verification Completed" });
+    return res.json(new Response(true, "Email Verification Completed"));
   }
 });
 
@@ -120,7 +105,7 @@ router.post("/vcode/resend", auth, async (req, res) => {
       html: signupCode(code),
     });
 
-    return res.json({ success: true, message: "Verification Code Resended" });
+    return res.json(new Response(true, "Verification Code Resended"));
   } else {
     const code = generateCode();
     await Vcode.findByIdAndDelete(getCode._id);
@@ -135,9 +120,17 @@ router.post("/vcode/resend", auth, async (req, res) => {
       text: "Hello world?",
       html: signupCode(code),
     });
-
-    return res.json({ success: true, message: "Verification Code Resended" });
+    return res.json(new Response(true, "Verification Code Resended"));
   }
+});
+
+router.get("/me", auth, async (req, res) => {
+  const user = await User.findById(req.user._id).select("-password");
+  if (!user) {
+    return res.status(404).send("User not found");
+  }
+
+  res.status(200).send(new Response(true, "Success", user));
 });
 
 export default router;

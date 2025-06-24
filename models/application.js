@@ -9,6 +9,10 @@ const applicationSchema = new mongoose.Schema(
       maxLength: 1000,
       required: true,
     },
+    buyer: {
+      type: String,
+      require: true,
+    },
     jobId: {
       type: String,
       required: true,
@@ -30,8 +34,9 @@ export const Application = mongoose.model("Application", applicationSchema);
 export const validateApplication = (application) => {
   const schema = Joi.object({
     message: Joi.string().min(2).max(1000).required().label("Message"),
+    buyer: Joi.string().required().label("Buyer"),
     jobId: Joi.string().required().label("Job"),
-    author: Joi.string().required().label("Author"),
+    attachments: Joi.string().uri(),
   });
   return schema.validate(application);
 };

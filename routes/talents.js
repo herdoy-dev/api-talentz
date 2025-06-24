@@ -1,5 +1,6 @@
 import express from "express";
 import { User } from "../models/user.js";
+import Response from "../utils/Response.js";
 
 const router = express.Router();
 
@@ -67,7 +68,7 @@ router.get("/", async (req, res) => {
   query = query.skip(skip).limit(size);
 
   // Execute query
-  const users = await query.exec();
+  const talents = await query.exec();
 
   // Prepare count query with same filters
   let countQuery = User.find(baseQuery);
@@ -95,15 +96,9 @@ router.get("/", async (req, res) => {
   const pageCount = Math.ceil(totalCount / size);
 
   // Send response
-  res.status(200).json({
-    result: users,
-    count: totalCount,
-    pagination: {
-      currentPage: pageNum,
-      pageCount,
-      pageSize: size,
-    },
-  });
+  res
+    .status(200)
+    .send(new Response(true, "Fetched", talents, pageCount, page, pageSize));
 });
 
 export default router;

@@ -186,7 +186,7 @@ router.post("/", auth, async (req, res) => {
   const { error } = validateJob(body);
   if (error) return res.status(400).send(error.details[0].message);
   const newJob = await Job.create(body);
-  res.status(201).send(newJob);
+  res.status(201).send(new Response(true, "Job Created", newJob));
 });
 
 router.put("/:id", auth, async (req, res) => {

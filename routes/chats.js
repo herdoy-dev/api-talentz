@@ -1,36 +1,22 @@
 import express from "express";
 import auth from "../middlewares/auth.js";
 import { Chat } from "../models/chat.js";
+import Response from "../utils/Response.js";
 
 const router = express.Router();
 
 router.get("/", auth, async (req, res) => {
   try {
-    const { userId } = req.query;
-
-    if (!userId || typeof userId !== "string") {
-      return res.status(400).json({
-        success: false,
-        message: "Valid userId ID is required",
-      });
-    }
-
     const chats = await Chat.find({
-      $or: [{ buyer: userId }, { seller: userId }],
+      $or: [{ buyer: req.user._id }, { seller: req.user._id }],
     })
       .populate("seller", "firstName lastName image role")
       .populate("buyer", "firstName lastName image role");
-
-    res.status(200).json({
-      result: chats,
-      count: chats.length,
-    });
+    console.log(chats);
+    res.status(200).json(new Response(true, "Success", chats, chats.length));
   } catch (error) {
     console.error("Error fetching chats:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch chats",
-    });
+    res.status(500).json(new Response(false, "Something went worn!"));
   }
 });
 
@@ -41,8 +27,8 @@ router.post("/", auth, async (req, res) => {
     // Check if chat already exists in either direction
     const existingChat = await Chat.findOne({
       $or: [
-        { buyer: body.buyer, seller: body.seller },
-        { buyer: body.seller, seller: body.buyer },
+        { buyer: req.user._id, seller: body.seller },
+        { buyer: body.seller, seller: req.user._id },
       ],
     })
       .populate("seller", "firstName lastName image role")
@@ -52,11 +38,10 @@ router.post("/", auth, async (req, res) => {
       return res.status(200).send(existingChat);
     }
 
-    const newChat = await Chat.create(body);
+    const newChat = await Chat.create({ ...req.body, buyer: req.user._id });
     const populatedChat = await Chat.findById(newChat._id)
       .populate("seller", "firstName lastName image role")
       .populate("buyer", "firstName lastName image role");
-
     res.status(201).send(populatedChat);
   } catch (error) {
     console.error("Error creating chat:", error);
@@ -73,17 +58,16 @@ router.delete("/:id", auth, async (req, res) => {
     const chat = await Chat.findById(_id);
 
     if (!chat) {
-      return res.status(404).send("The chat with the given ID was not found.");
+      return res
+        .status(404)
+        .send(new Response(false, "The chat with the given ID was not found."));
     }
 
     const deletedChat = await Chat.findByIdAndDelete(_id);
-    res.status(200).send(deletedChat);
+    res.status(200).send(new Response(true, "Chat Deleted", deletedChat));
   } catch (error) {
     console.error("Error deleting chat:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete chat",
-    });
+    res.status(500).json(new Response(false, "Something went worn!"));
   }
 });
 
