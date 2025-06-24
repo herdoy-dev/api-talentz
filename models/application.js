@@ -34,7 +34,6 @@ export const Application = mongoose.model("Application", applicationSchema);
 export const validateApplication = (application) => {
   const schema = Joi.object({
     message: Joi.string().min(2).max(1000).required().label("Message"),
-    buyer: Joi.string().required().label("Buyer"),
     jobId: Joi.string().required().label("Job"),
     attachments: Joi.string().uri(),
   });

@@ -33,13 +33,23 @@ router.get("/", auth, async (req, res) => {
 
 // GET Application by jobId and populate author
 router.get("/my", auth, async (req, res) => {
-  const { jobId } = req.query;
-  const application = await Application.findOne({
-    author: req.user._id,
-    jobId,
-  }).populate("author", "firstName lastName image skills title location");
+  try {
+    const { jobId } = req.query;
 
-  res.status(200).json(new Response(true, "Success", application));
+    const application = await Application.findOne({
+      author: req.user._id,
+      jobId,
+    }).populate("author", "firstName lastName image skills title location");
+
+    if (!application) {
+      return res.status(404).json(new Response(false, "Application not found"));
+    }
+
+    res.status(200).json(new Response(true, "Success", application));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(new Response(false, "Server error"));
+  }
 });
 
 // Create a new comment
