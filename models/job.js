@@ -39,6 +39,15 @@ const jobSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    deliveryDate: {
+      type: Date,
+      validate: {
+        validator: function (value) {
+          return value > new Date();
+        },
+        message: "Delivery date must be in the future",
+      },
+    },
     jobType: {
       type: String,
       enum: ["fixed", "hourly", "full-time"],

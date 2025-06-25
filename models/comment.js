@@ -1,4 +1,3 @@
-import Joi from "joi";
 import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema(
@@ -9,9 +8,34 @@ const commentSchema = new mongoose.Schema(
       maxLength: 1000,
       required: true,
     },
-    jobId: {
-      type: String,
+    job: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Job",
       required: true,
+    },
+    reqTime: {
+      type: Date,
+      validate: {
+        validator: function (value) {
+          return value > new Date();
+        },
+        message: "Delivery date must be in the future",
+      },
+    },
+    reqFund: {
+      type: Number,
+      min: [5, "Amount must be at least $5"],
+      max: [10000, "Amount cannot exceed $10,000"],
+    },
+    reqType: {
+      type: String,
+      enum: ["comment", "request_fund", "request_time"],
+      default: "comment",
+    },
+    status: {
+      type: String,
+      enum: ["pending", "approve", "cancel"],
+      default: "pending",
     },
     attachments: [{ type: String }],
     author: {
@@ -25,12 +49,4 @@ const commentSchema = new mongoose.Schema(
   }
 );
 
-export const Comment = mongoose.model("Comment", commentSchema); // ✅ Correct model name
-
-export const validateComment = (comment) => {
-  const schema = Joi.object({
-    message: Joi.string().min(2).max(1000).required().label("Message"),
-    jobId: Joi.string().required().label("Job"),
-  });
-  return schema.validate(comment);
-};
+export const Comment = mongoose.model("Comment", commentSchema);

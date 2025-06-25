@@ -1,9 +1,8 @@
 import express from "express";
 import auth from "../middlewares/auth.js";
-import { Order } from "../models/order.js";
+import { Job } from "../models/job.js";
 import { Transaction } from "../models/transaction.js";
 import stripe from "../utils/stripe.js";
-import { Job } from "../models/job.js";
 const router = express.Router();
 
 router.post("/", auth, async (req, res) => {
@@ -19,16 +18,11 @@ router.post("/", auth, async (req, res) => {
       status: "pending",
     });
 
-    const order = await Order.create({
-      buyer: userId,
+    await Job.findByIdAndUpdate(job, {
       seller,
+      budgetAmount: amount,
       deliveryDate,
-      amount,
-      job,
-      status: "pending",
     });
-
-    await Job.findByIdAndUpdate(job, { seller });
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -49,7 +43,6 @@ router.post("/", auth, async (req, res) => {
       cancel_url: `${process.env.ORIGIN}/deposit-cancelled`,
       metadata: {
         transactionId: transaction._id.toString(), // Convert to string
-        orderId: order._id.toString(), // Convert to string
         jobId: job.toString(),
       },
     });

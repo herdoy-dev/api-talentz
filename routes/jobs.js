@@ -1,6 +1,6 @@
 import express from "express";
 import auth from "../middlewares/auth.js";
-import { Job, validateJob, validateUpdatableJobData } from "../models/job.js";
+import { Job, validateJob } from "../models/job.js";
 import Response from "../utils/Response.js";
 
 const router = express.Router();
@@ -189,24 +189,8 @@ router.post("/", auth, async (req, res) => {
   res.status(201).send(new Response(true, "Job Created", newJob));
 });
 
-router.put("/:id", auth, async (req, res) => {
-  const _id = req.params.id;
-  const job = await Job.findById(_id).populate("author", "_id");
-
-  if (!job) {
-    return res.status(404).send("Job not found");
-  }
-
-  // Authorization check
-  if (
-    job.author._id.toString() !== req.user._id.toString() &&
-    !req.user.isAdmin
-  ) {
-    return res.status(403).send("Unauthorized");
-  }
-
-  const { error } = validateUpdatableJobData(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+router.put("/:_id", auth, async (req, res) => {
+  const _id = req.params._id;
 
   const updatedJob = await Job.findByIdAndUpdate(
     _id,
