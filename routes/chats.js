@@ -22,32 +22,51 @@ router.get("/", auth, async (req, res) => {
 
 router.post("/", auth, async (req, res) => {
   try {
-    const body = req.body;
+    const { seller, buyer } = req.body;
+    const currentUserId = req.user._id;
 
-    // Check if chat already exists in either direction
+    // Check if a chat already exists between the two users
     const existingChat = await Chat.findOne({
       $or: [
-        { buyer: req.user._id, seller: body.seller },
-        { buyer: body.seller, seller: req.user._id },
+        { buyer: currentUserId, seller },
+        { buyer: seller, seller: currentUserId },
+        { buyer, seller: currentUserId },
+        { buyer: currentUserId, seller: buyer },
       ],
     })
       .populate("seller", "firstName lastName image role")
       .populate("buyer", "firstName lastName image role");
 
     if (existingChat) {
-      return res.status(200).send(existingChat);
+      return res.status(200).json(existingChat);
     }
 
-    const newChat = await Chat.create({ ...req.body, buyer: req.user._id });
+    // Create new chat - ensure one participant is always the current user
+    const newChatData = {
+      seller: seller || currentUserId,
+      buyer: buyer || currentUserId,
+    };
+
+    // Make sure we're not creating a chat with the same user
+    if (newChatData.seller.toString() === newChatData.buyer.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot create a chat with yourself",
+      });
+    }
+
+    const newChat = await Chat.create(newChatData);
+
     const populatedChat = await Chat.findById(newChat._id)
       .populate("seller", "firstName lastName image role")
       .populate("buyer", "firstName lastName image role");
-    res.status(201).send(populatedChat);
+
+    return res.status(201).json(populatedChat);
   } catch (error) {
-    console.error("Error creating chat:", error);
-    res.status(500).json({
+    console.error("Error creating chat:", error.message);
+    return res.status(500).json({
       success: false,
-      message: "Failed to create chat",
+      message: "An error occurred while creating the chat.",
     });
   }
 });
