@@ -31,7 +31,7 @@ router.post("/", auth, async (req, res) => {
     const chat = await Chat.findById(body.chatId);
     if (!chat) return res.status(400).send(new Response(false, "Invalid Chat"));
 
-    chat.lastMessage = body.message || "";
+    chat.lastMessage = body.message || "Filses";
     await chat.save();
 
     const newMessage = await Message.create(body);

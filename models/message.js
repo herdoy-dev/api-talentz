@@ -16,7 +16,6 @@ const messageSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      minLength: 1,
       maxLength: 10000,
     },
     files: [
