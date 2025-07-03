@@ -29,7 +29,7 @@ const commentSchema = new mongoose.Schema(
     },
     reqType: {
       type: String,
-      enum: ["comment", "request_fund", "request_time"],
+      enum: ["comment", "request_fund", "request_time", "delivery"],
       default: "comment",
     },
     status: {
