@@ -174,7 +174,10 @@ router.get("/my", auth, async (req, res) => {
 
 router.get("/:id", auth, async (req, res) => {
   const _id = req.params.id;
-  const job = await Job.findById(_id);
+  const job = await Job.findById(_id).populate(
+    "author",
+    "firstName lastName image"
+  );
   if (!job)
     return res.status(404).send("The job with the given ID was not found!");
 
