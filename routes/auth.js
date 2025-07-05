@@ -1,12 +1,18 @@
 import express from "express";
 import signupCode from "../mails/signupCode.js";
 import auth from "../middlewares/auth.js";
-import { User, validateLogin, validateUser } from "../models/user.js";
+import {
+  User,
+  validateLogin,
+  validateUser,
+  validatePasswordChange,
+} from "../models/user.js";
 import { Vcode } from "../models/vcode.js";
 import generateCode from "../utils/code.js";
 import { compareHash } from "../utils/hash.js";
 import Response from "../utils/Response.js";
 import transporter from "../utils/transporter.js";
+import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
@@ -131,6 +137,59 @@ router.get("/me", auth, async (req, res) => {
   }
 
   res.status(200).send(new Response(true, "Success", user));
+});
+
+router.post("/change-password", auth, async (req, res) => {
+  try {
+    // Validate request body
+    const { error } = validatePasswordChange(req.body);
+    if (error) {
+      return res
+        .status(400)
+        .send(new Response(false, error.details[0].message));
+    }
+
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user._id;
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send(new Response(false, "User not found"));
+    }
+
+    // Verify current password
+    const isPasswordValid = await compareHash(currentPassword, user.password);
+    if (!isPasswordValid) {
+      return res
+        .status(401)
+        .send(new Response(false, "Current password is incorrect"));
+    }
+
+    // Check if new password is different
+    if (currentPassword === newPassword) {
+      return res
+        .status(400)
+        .send(
+          new Response(
+            false,
+            "New password must be different from current password"
+          )
+        );
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    // Send success response
+    return res
+      .status(200)
+      .send(new Response(true, "Password changed successfully"));
+  } catch (error) {
+    console.error("Password change error:", error);
+    return res.status(500).send(new Response(false, "Internal server error"));
+  }
 });
 
 export default router;

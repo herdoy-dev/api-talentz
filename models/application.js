@@ -1,5 +1,5 @@
 import Joi from "joi";
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 
 const applicationSchema = new mongoose.Schema(
   {
@@ -10,11 +10,13 @@ const applicationSchema = new mongoose.Schema(
       required: true,
     },
     buyer: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       require: true,
     },
-    jobId: {
-      type: String,
+    job: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Job",
       required: true,
     },
     attachments: [{ type: String }],
@@ -34,6 +36,7 @@ export const Application = mongoose.model("Application", applicationSchema);
 export const validateApplication = (application) => {
   const schema = Joi.object({
     message: Joi.string().min(2).max(1000).required().label("Message"),
+    buyer: Joi.string().required(),
     jobId: Joi.string().required().label("Job"),
     attachments: Joi.string().uri(),
   });

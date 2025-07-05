@@ -75,7 +75,7 @@ router.post("/delivery", auth, async (req, res) => {
 
     const user = await User.findByIdAndUpdate(
       sellerId,
-      { $inc: { walletBalance: job.budgetAmount } },
+      { $inc: { walletBalance: job.budgetAmount * 0.9 } },
       { new: true, session }
     );
 

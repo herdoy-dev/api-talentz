@@ -136,3 +136,19 @@ export const validateLogin = (credentials) => {
 
   return schema.validate(credentials);
 };
+
+// Add to your user validation file (where validateUser and validateLogin are defined)
+export const validatePasswordChange = (data) => {
+  const schema = Joi.object({
+    currentPassword: Joi.string().required().min(8).label("Current Password"),
+    newPassword: Joi.string().required().min(8).label("New Password"),
+    confirmPassword: Joi.string()
+      .required()
+      .valid(Joi.ref("newPassword"))
+      .label("Confirm Password")
+      .messages({
+        "any.only": "Passwords do not match",
+      }),
+  });
+  return schema.validate(data);
+};

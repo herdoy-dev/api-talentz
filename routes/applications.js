@@ -1,6 +1,7 @@
 import express from "express";
 import auth from "../middlewares/auth.js";
-import { Application, validateApplication } from "../models/application.js";
+import { Application } from "../models/application.js";
+import { Job } from "../models/job.js";
 import Response from "../utils/Response.js";
 
 const router = express.Router();
@@ -21,7 +22,7 @@ router.get("/", auth, async (req, res) => {
     });
   }
 
-  const applicatins = await Application.find({ jobId }).populate(
+  const applicatins = await Application.find({ job: jobId }).populate(
     "author",
     "firstName lastName image skills title location"
   );
@@ -38,7 +39,7 @@ router.get("/my", auth, async (req, res) => {
 
     const application = await Application.findOne({
       author: req.user._id,
-      jobId,
+      job: jobId,
     }).populate("author", "firstName lastName image skills title location");
 
     if (!application) {
@@ -54,14 +55,57 @@ router.get("/my", auth, async (req, res) => {
 
 // Create a new comment
 router.post("/", auth, async (req, res) => {
-  const { error } = validateApplication(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  try {
+    const { message, jobId, attachments = [] } = req.body;
 
-  const application = await Application.create({
-    ...req.body,
-    author: req.user._id,
-  });
-  res.status(201).send(new Response(true, "Success", application));
+    // Validate required fields
+    if (!message || !jobId) {
+      return res
+        .status(400)
+        .send(new Response(false, "Message and job ID are required"));
+    }
+
+    // Validate message length
+    if (message.length < 2) {
+      return res
+        .status(400)
+        .send(new Response(false, "Message must be at least 2 characters"));
+    }
+
+    // Check if job exists
+    const jobExists = await Job.findById(jobId);
+    if (!jobExists) {
+      return res.status(404).send(new Response(false, "Job not found"));
+    }
+
+    // Create the application
+    const application = await Application.create({
+      message,
+      buyer: jobExists.author,
+      attachments: Array.isArray(attachments) ? attachments : [],
+      author: req.user._id,
+      job: jobId,
+    });
+
+    return res
+      .status(201)
+      .send(
+        new Response(true, "Application created successfully", application)
+      );
+  } catch (error) {
+    console.error("Error creating comment:", error);
+
+    // Handle specific MongoDB errors
+    if (error.name === "ValidationError") {
+      return res.status(400).send(new Response(false, error.message));
+    }
+
+    if (error.name === "CastError") {
+      return res.status(400).send(new Response(false, "Invalid job ID format"));
+    }
+
+    return res.status(500).send(new Response(false, "Internal server error"));
+  }
 });
 
 // Delete a comment
