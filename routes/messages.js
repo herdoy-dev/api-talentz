@@ -37,7 +37,6 @@ router.post("/", auth, async (req, res) => {
     const newMessage = await Message.create(body);
     res.status(201).send(new Response(true, "Success", newMessage));
   } catch (error) {
-    console.error(error);
     res.status(500).send(new Response(false, "Internal Server Error"));
   }
 });

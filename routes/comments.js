@@ -93,7 +93,6 @@ router.post("/delivery", auth, async (req, res) => {
     );
   } catch (error) {
     await session.abortTransaction();
-    console.error("Delivery approval error:", error);
     return res
       .status(500)
       .send(new Response(false, error.message || "Failed to approve delivery"));

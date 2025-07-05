@@ -12,10 +12,8 @@ router.get("/", auth, async (req, res) => {
     })
       .populate("seller", "firstName lastName image role")
       .populate("buyer", "firstName lastName image role");
-    console.log(chats);
     res.status(200).json(new Response(true, "Success", chats, chats.length));
   } catch (error) {
-    console.error("Error fetching chats:", error);
     res.status(500).json(new Response(false, "Something went worn!"));
   }
 });
@@ -63,7 +61,6 @@ router.post("/", auth, async (req, res) => {
 
     return res.status(201).json(populatedChat);
   } catch (error) {
-    console.error("Error creating chat:", error.message);
     return res.status(500).json({
       success: false,
       message: "An error occurred while creating the chat.",
@@ -85,7 +82,6 @@ router.delete("/:id", auth, async (req, res) => {
     const deletedChat = await Chat.findByIdAndDelete(_id);
     res.status(200).send(new Response(true, "Chat Deleted", deletedChat));
   } catch (error) {
-    console.error("Error deleting chat:", error);
     res.status(500).json(new Response(false, "Something went worn!"));
   }
 });

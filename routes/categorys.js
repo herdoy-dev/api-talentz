@@ -11,7 +11,6 @@ router.get("/", async (req, res) => {
     const categories = await Category.find();
     res.status(200).send(new Response(true, "Success", categories));
   } catch (error) {
-    console.error(error);
     res.status(500).send(new Response(false, "Internal Server Error"));
   }
 });
@@ -29,7 +28,6 @@ router.get("/:id", async (req, res) => {
     }
     res.status(200).send(new Response(true, "Success", category));
   } catch (error) {
-    console.error(error);
     res.status(500).send(new Response(false, "Internal Server Error"));
   }
 });
@@ -46,7 +44,6 @@ router.post("/", [auth, admin], async (req, res) => {
     const newCategory = await Category.create(body);
     res.status(201).send(new Response(true, "Category Created", newCategory));
   } catch (error) {
-    console.error(error);
     res.status(500).send(new Response(false, "Something went wrong"));
   }
 });
@@ -78,7 +75,6 @@ router.put("/:id", [auth, admin], async (req, res) => {
       .status(200)
       .send(new Response(true, "Category Updated", updatedCategory));
   } catch (error) {
-    console.error(error);
     res.status(500).send(new Response(false, "Internal Server Error"));
   }
 });
@@ -100,7 +96,6 @@ router.delete("/:id", [auth, admin], async (req, res) => {
       .status(200)
       .send(new Response(true, "Category Deleted", deletedCategory));
   } catch (error) {
-    console.error(error);
     res.status(500).send(new Response(false, "Internal Server Error"));
   }
 });

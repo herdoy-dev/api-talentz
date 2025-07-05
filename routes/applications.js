@@ -48,7 +48,6 @@ router.get("/my", auth, async (req, res) => {
 
     res.status(200).json(new Response(true, "Success", application));
   } catch (error) {
-    console.error(error);
     res.status(500).json(new Response(false, "Server error"));
   }
 });
@@ -93,9 +92,6 @@ router.post("/", auth, async (req, res) => {
         new Response(true, "Application created successfully", application)
       );
   } catch (error) {
-    console.error("Error creating comment:", error);
-
-    // Handle specific MongoDB errors
     if (error.name === "ValidationError") {
       return res.status(400).send(new Response(false, error.message));
     }

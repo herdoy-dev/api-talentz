@@ -187,7 +187,6 @@ router.post("/change-password", auth, async (req, res) => {
       .status(200)
       .send(new Response(true, "Password changed successfully"));
   } catch (error) {
-    console.error("Password change error:", error);
     return res.status(500).send(new Response(false, "Internal server error"));
   }
 });

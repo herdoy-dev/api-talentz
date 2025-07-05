@@ -34,7 +34,6 @@ router.post(
 
       res.status(200).send();
     } catch (err) {
-      console.error("Webhook error:", err.message);
       res.status(400).send(`Webhook Error: ${err.message}`);
     }
   }

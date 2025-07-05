@@ -49,7 +49,6 @@ router.post("/", auth, async (req, res) => {
 
     res.json({ url: session.url });
   } catch (error) {
-    console.error("Error creating checkout session:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
