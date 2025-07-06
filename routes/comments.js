@@ -101,6 +101,26 @@ router.post("/delivery", auth, async (req, res) => {
   }
 });
 
+router.get("/all", auth, async (req, res) => {
+  try {
+    // First find jobs created by the current user
+    const userJobs = await Job.find({ author: req.user._id }).select("_id");
+
+    // Then find comments that belong to these jobs
+    const jobComments = await Comment.find({
+      job: { $in: userJobs.map((job) => job._id) },
+    })
+      .limit(3)
+      .sort("-createdAt")
+      .populate("author", "name email"); // optionally populate author info
+
+    res.status(200).json(new Response(true, "Success", jobComments));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(new Response(false, "Server error"));
+  }
+});
+
 router.delete("/:_id", auth, async (req, res) => {
   const deletedComment = await Comment.findByIdAndDelete(req.params._id);
   return res.status(200).send(new Response(true, "Success", deletedComment));

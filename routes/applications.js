@@ -52,6 +52,24 @@ router.get("/my", auth, async (req, res) => {
   }
 });
 
+router.get("/all", auth, async (req, res) => {
+  try {
+    const application = await Application.find({
+      buyer: req.user._id,
+    })
+      .limit(3)
+      .sort("-createdAt");
+
+    if (!application) {
+      return res.status(404).json(new Response(false, "Application not found"));
+    }
+
+    res.status(200).json(new Response(true, "Success", application));
+  } catch (error) {
+    res.status(500).json(new Response(false, "Server error"));
+  }
+});
+
 // Create a new comment
 router.post("/", auth, async (req, res) => {
   try {
