@@ -17,6 +17,7 @@ import portfolios from "./routes/portfolios.js";
 import services from "./routes/services.js";
 import talents from "./routes/talents.js";
 import users from "./routes/users.js";
+import withdraws from "./routes/withdraws.js";
 import webhook from "./routes/webhook.js";
 import startServer from "./startup/start-server.js";
 
@@ -53,6 +54,7 @@ app.use("/api/chats", chats);
 app.use("/api/messages", messages);
 app.use("/api/talents", talents);
 app.use("/api/orders", orders);
+app.use("/api/withdraws", withdraws);
 
 // Start server
 startServer(app);
