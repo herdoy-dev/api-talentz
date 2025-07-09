@@ -3,6 +3,7 @@ import auth from "../middlewares/auth.js";
 import { Chat } from "../models/chat.js";
 import { Message } from "../models/message.js";
 import Response from "../utils/Response.js";
+import { notifyNewMessage } from "../startup/start-server.js";
 
 const router = express.Router();
 
@@ -31,10 +32,23 @@ router.post("/", auth, async (req, res) => {
     const chat = await Chat.findById(body.chatId);
     if (!chat) return res.status(400).send(new Response(false, "Invalid Chat"));
 
-    chat.lastMessage = body.message || "Filses";
+    chat.lastMessage = body.message || "Files";
     await chat.save();
 
     const newMessage = await Message.create(body);
+
+    // Identify receiver and notify them
+    const receiverId =
+      body.sender === chat.buyer.toString()
+        ? chat.seller.toString()
+        : chat.buyer.toString();
+
+    notifyNewMessage({
+      senderId: body.sender,
+      receiverId,
+      chatId: body.chatId,
+    });
+
     res.status(201).send(new Response(true, "Success", newMessage));
   } catch (error) {
     res.status(500).send(new Response(false, "Internal Server Error"));
