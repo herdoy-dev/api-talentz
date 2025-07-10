@@ -66,6 +66,50 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/earning", auth, async (req, res) => {
+  try {
+    const completedWithdraws = await Withdraw.find({
+      user: req.user._id,
+      status: "COMPLETED",
+    });
+
+    const totalEarning = completedWithdraws.reduce((total, withdraw) => {
+      return total + (withdraw.amount || 0);
+    }, 0);
+
+    res
+      .status(200)
+      .send(
+        new Response(true, "Earnings calculated successfully", totalEarning)
+      );
+  } catch (error) {
+    console.error("Error calculating earnings:", error);
+    res.status(500).send(new Response(false, "Server error"));
+  }
+});
+
+router.get("/earning/pending", auth, async (req, res) => {
+  try {
+    const pendingWithdraws = await Withdraw.find({
+      user: req.user._id,
+      status: "PENDING",
+    });
+
+    const totalEarning = pendingWithdraws.reduce((total, withdraw) => {
+      return total + (withdraw.amount || 0);
+    }, 0);
+
+    res
+      .status(200)
+      .send(
+        new Response(true, "Earnings calculated successfully", totalEarning)
+      );
+  } catch (error) {
+    console.error("Error calculating earnings:", error);
+    res.status(500).send(new Response(false, "Server error"));
+  }
+});
+
 // Get user's withdraw requests
 router.get("/my", auth, async (req, res) => {
   try {
