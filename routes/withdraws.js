@@ -1,4 +1,5 @@
 import express from "express";
+import admin from "../middlewares/admin.js";
 import auth from "../middlewares/auth.js";
 import { User } from "../models/user.js";
 import { Withdraw } from "../models/withdraw.js";
@@ -7,7 +8,7 @@ import Response from "../utils/Response.js";
 const router = express.Router();
 
 // Get all withdraw requests (admin view)
-router.get("/", async (req, res) => {
+router.get("/", [auth, admin], async (req, res) => {
   try {
     const {
       orderBy,

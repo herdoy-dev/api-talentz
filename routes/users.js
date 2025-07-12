@@ -68,7 +68,7 @@ router.get("/", [auth, admin], async (req, res) => {
 
   res
     .status(200)
-    .send(new Response(true, "Fetched", jobs, totalCount, page, pageSize));
+    .send(new Response(true, "Fetched", users, totalCount, page, pageSize));
 });
 
 // Get a user by ID

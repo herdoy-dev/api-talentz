@@ -16,9 +16,10 @@ import packages from "./routes/packages.js";
 import portfolios from "./routes/portfolios.js";
 import services from "./routes/services.js";
 import talents from "./routes/talents.js";
+import transactions from "./routes/transactions.js";
 import users from "./routes/users.js";
-import withdraws from "./routes/withdraws.js";
 import webhook from "./routes/webhook.js";
+import withdraws from "./routes/withdraws.js";
 import startServer from "./startup/start-server.js";
 
 import dotenv from "dotenv";
@@ -55,6 +56,7 @@ app.use("/api/messages", messages);
 app.use("/api/talents", talents);
 app.use("/api/orders", orders);
 app.use("/api/withdraws", withdraws);
+app.use("/api/transactions", transactions);
 
 // Start server
 startServer(app);

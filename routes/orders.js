@@ -12,7 +12,7 @@ router.post("/", auth, async (req, res) => {
     const userId = req.user._id;
 
     const transaction = await Transaction.create({
-      userId,
+      user: userId,
       type: "checkout",
       amount,
       status: "pending",
