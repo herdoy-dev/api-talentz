@@ -18,6 +18,7 @@ import services from "./routes/services.js";
 import buyer from "./routes/buyer.js";
 import seller from "./routes/seller.js";
 import talents from "./routes/talents.js";
+import paymentMethods from "./routes/paymentMethods.js";
 import transactions from "./routes/transactions.js";
 import users from "./routes/users.js";
 import webhook from "./routes/webhook.js";
@@ -59,6 +60,7 @@ app.use("/api/buyer", buyer);
 app.use("/api/seller", seller);
 app.use("/api/talents", talents);
 app.use("/api/orders", orders);
+app.use("/api/payment-methods", paymentMethods);
 app.use("/api/withdraws", withdraws);
 app.use("/api/transactions", transactions);
 

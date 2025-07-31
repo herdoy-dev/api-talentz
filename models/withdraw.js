@@ -14,8 +14,13 @@ const withdrawSchema = new mongoose.Schema(
       require: true,
     },
     paymentMethod: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PaymentMethod",
+      require: true,
+    },
+    paymentMethodType: {
       type: String,
-      enum: ["BANK", "PAYPAL", "PAYONEER"],
+      enum: ["bank", "paypal", "payoneer"],
       require: true,
     },
     status: {

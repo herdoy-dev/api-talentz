@@ -176,7 +176,7 @@ router.get("/my", auth, async (req, res) => {
 // Create new withdraw request
 router.post("/", auth, async (req, res) => {
   try {
-    const { amount, paymentMethod } = req.body;
+    const { amount, paymentMethod, paymentMethodType } = req.body;
 
     // Validate input
     if (!amount || !paymentMethod) {
@@ -210,6 +210,7 @@ router.post("/", auth, async (req, res) => {
       amount: numericAmount,
       user: req.user._id,
       paymentMethod,
+      paymentMethodType,
       status: "PENDING",
     });
 
