@@ -4,57 +4,57 @@ import auth from "../middlewares/auth.js";
 import {
   User,
   validateLogin,
-  validateUser,
   validatePasswordChange,
+  validateUser,
 } from "../models/user.js";
 import { Vcode } from "../models/vcode.js";
 import generateCode from "../utils/code.js";
 import { compareHash } from "../utils/hash.js";
 import Response from "../utils/Response.js";
 import transporter from "../utils/transporter.js";
-import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
 // Sign-up route
 router.post("/sign-up", async (req, res) => {
-  const { error } = validateUser(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  try {
+    const { error } = validateUser(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
 
-  const { firstName, lastName, email, role, password } = req.body;
+    const { firstName, lastName, email, role, password } = req.body;
 
-  // Check if user already exists
-  const isExist = await User.findOne({ email });
-  if (isExist)
-    return res.status(409).send(new Response(false, "User already exists!"));
+    const isExist = await User.findOne({ email });
+    if (isExist)
+      return res.status(409).send(new Response(false, "User already exists!"));
 
-  const newUser = await User.create({
-    firstName,
-    lastName,
-    email,
-    role,
-    password,
-  });
+    const newUser = await User.create({
+      firstName,
+      lastName,
+      email,
+      role,
+      password,
+    });
 
-  const code = generateCode();
+    const code = generateCode();
 
-  await transporter.sendMail({
-    from: "herdoy.dev@gmail.com",
-    to: email,
-    subject: `Your verification code is ${code}`,
-    text: "Hello world?",
-    html: signupCode(code),
-  });
+    await transporter.sendMail({
+      from: "herdoy.dev@gmail.com",
+      to: email,
+      subject: `Your verification code is ${code}`,
+      text: "Hello world?",
+      html: signupCode(code),
+    });
 
-  await Vcode.create({
-    code,
-    email,
-  });
+    await Vcode.create({
+      code,
+      email,
+    });
 
-  // Generate token and send response
-  const token = newUser.generateAuthToken();
-
-  return res.status(200).json(new Response(true, "Signup Success", token));
+    const token = newUser.generateAuthToken();
+    return res.status(200).json(new Response(true, "Signup Success", token));
+  } catch (error) {
+    return res.status(500).json(new Response(false, "Something went wrong"));
+  }
 });
 
 // Log-in route
