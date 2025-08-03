@@ -6,6 +6,12 @@ import Response from "../utils/Response.js";
 
 const router = express.Router();
 
+router.get("/public", auth, async (req, res) => {
+  const { userId } = req.query;
+  const user = await User.findById(userId);
+  res.status(200).json(new Response(true, "Success", user));
+});
+
 // Get all users
 router.get("/", [auth, admin], async (req, res) => {
   const {
@@ -69,6 +75,13 @@ router.get("/", [auth, admin], async (req, res) => {
   res
     .status(200)
     .send(new Response(true, "Fetched", users, totalCount, page, pageSize));
+});
+
+router.get("/public", auth, async (req, res) => {
+  const { userId } = req.query;
+  const user = await User.findById(userId);
+  console.log(user);
+  res.status(200).json(new Response(true, "Success", user));
 });
 
 // Get a user by ID

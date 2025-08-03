@@ -11,6 +11,12 @@ router.get("/", auth, async (req, res) => {
   res.status(200).send(new Response(true, "Success", educations));
 });
 
+router.get("/user", async (req, res) => {
+  const { userId } = req.query;
+  const educations = await Education.find({ userId });
+  res.status(200).send(new Response(true, "Success", educations));
+});
+
 // Get a specific education by ID
 router.get("/:id", auth, async (req, res) => {
   const education = await Education.findOne({

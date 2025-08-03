@@ -1,5 +1,6 @@
 import express from "express";
 import { User } from "../models/user.js";
+import { Job } from "../models/job.js";
 import Response from "../utils/Response.js";
 
 const router = express.Router();
@@ -99,6 +100,16 @@ router.get("/", async (req, res) => {
   res
     .status(200)
     .send(new Response(true, "Fetched", talents, pageCount, page, pageSize));
+});
+
+router.get("/total-job-count", async (req, res) => {
+  const { userId } = req.query;
+  const countCompletedJob = await Job.countDocuments({
+    status: "COMPLETED",
+    seller: userId,
+  });
+
+  res.status(200).send(new Response(true, "Success", countCompletedJob));
 });
 
 export default router;
