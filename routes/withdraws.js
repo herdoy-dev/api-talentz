@@ -20,7 +20,9 @@ router.get("/", [auth, admin], async (req, res) => {
     } = req.query;
 
     // Build base query
-    let query = Withdraw.find().populate("user", "firstName lastName email");
+    let query = Withdraw.find()
+      .populate("user", "firstName lastName email")
+      .populate("paymentMethod");
 
     // Apply filters
     if (status) {
@@ -123,10 +125,9 @@ router.get("/my", auth, async (req, res) => {
     } = req.query;
 
     // Build base query for user's withdraws
-    let query = Withdraw.find({ user: req.user._id }).populate(
-      "user",
-      "firstName lastName email"
-    );
+    let query = Withdraw.find({ user: req.user._id })
+      .populate("user", "firstName lastName email")
+      .populate("paymentMethod");
 
     // Apply status filter if provided
     if (status) {
@@ -231,6 +232,12 @@ router.post("/", auth, async (req, res) => {
     console.error("Error creating withdraw request:", error);
     res.status(500).send(new Response(false, "Internal server error"));
   }
+});
+
+router.post("/approve", [auth, admin], async (req, res) => {
+  const { withdrawId } = req.body;
+  await Withdraw.findByIdAndUpdate(withdrawId, { status: "COMPLETED" });
+  res.status(200).send(new Response(true, "Completed"));
 });
 
 export default router;
