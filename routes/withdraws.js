@@ -240,4 +240,10 @@ router.post("/approve", [auth, admin], async (req, res) => {
   res.status(200).send(new Response(true, "Completed"));
 });
 
+router.post("/cancel", [auth, admin], async (req, res) => {
+  const { withdrawId } = req.body;
+  await Withdraw.findByIdAndUpdate(withdrawId, { status: "FAILED" });
+  res.status(200).send(new Response(true, "Completed"));
+});
+
 export default router;
