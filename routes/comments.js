@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import auth from "../middlewares/auth.js";
 import { Comment } from "../models/comment.js";
 import { Job } from "../models/job.js";
+import { Notification } from "../models/Notification.js";
 import { User } from "../models/user.js";
 import Response from "../utils/Response.js";
 
@@ -82,6 +83,13 @@ router.post("/delivery", auth, async (req, res) => {
     if (!user) {
       throw new Error("User not found");
     }
+
+    await Notification.create({
+      title: "Delivery Accepted",
+      description:
+        "Your client has accepted the delivered work. Payment will be processed according to your agreement.",
+      user: user._id,
+    });
 
     await session.commitTransaction();
     return res.status(200).send(
