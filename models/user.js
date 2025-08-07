@@ -72,6 +72,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["client", "freelancer", "admin"],
     },
+    identityStatus: {
+      type: String,
+      enum: ["unverified", "verified"],
+      default: "unverified",
+    },
     isVerified: {
       type: Boolean,
       default: false,

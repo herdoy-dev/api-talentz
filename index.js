@@ -21,6 +21,7 @@ import talents from "./routes/talents.js";
 import paymentMethods from "./routes/paymentMethods.js";
 import transactions from "./routes/transactions.js";
 import users from "./routes/users.js";
+import identityVerifications from "./routes/identityVerifications.js";
 import notifications from "./routes/notifications.js";
 import webhook from "./routes/webhook.js";
 import withdraws from "./routes/withdraws.js";
@@ -65,6 +66,7 @@ app.use("/api/notifications", notifications);
 app.use("/api/payment-methods", paymentMethods);
 app.use("/api/withdraws", withdraws);
 app.use("/api/transactions", transactions);
+app.use("/api/verifications", identityVerifications);
 
 // Start server
 startServer(app);
