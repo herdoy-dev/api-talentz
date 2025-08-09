@@ -64,7 +64,7 @@ router.get("/spend-report", auth, async (req, res) => {
       new Response(true, "Success", {
         totalSpend,
         monthlySpend,
-        averateProjectCost,
+        averateProjectCost: averateProjectCost.toFixed(),
         monthlySpendReport,
       })
     );
